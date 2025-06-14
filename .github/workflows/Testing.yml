@@ -137,75 +137,75 @@ jobs:
           
           # *** تغییر کلیدی شماره ۲: استفاده از cat <<EOF برای ساختار تمیزتر ***
           cat <<EOF > "$NEW_ENTRY_FILE"
-## Generated On: ${CURRENT_DATETIME_IRAN}
+          ## Generated On: ${CURRENT_DATETIME_IRAN}
+          
+          > [!WARNING]
+          > ∆ Triggered by: ${{ github.event_name }}  
+          > ∆ Time-Sensitive Codes:  
+          > - Expire in 24 hours
+          > - Single-device binding
+          > - No reactivation permitted
 
-> [!WARNING]
-> ∆ Triggered by: ${{ github.event_name }}  
-> ∆ Time-Sensitive Codes:  
-> - Expire in 24 hours
-> - Single-device binding
-> - No reactivation permitted
-
-<br />
-
-EOF
-
+          <br />
+          
+          EOF
+          
           if [[ -n "$VPN_CODES_LIST" ]]; then
-            cat <<EOF >> "$NEW_ENTRY_FILE"
-**ESET VPN ACCESS CODES**
-
-\`\`\`ruby
-$(echo "$VPN_CODES_LIST" | sed 's/, /\n/g')
-\`\`\`
-
-<br />
-
-EOF
+          cat <<EOF >> "$NEW_ENTRY_FILE"
+          **ESET VPN ACCESS CODES**
+          
+          \`\`\`ruby
+          $(echo "$VPN_CODES_LIST" | sed 's/, /\n/g')
+          \`\`\`
+          
+          <br />
+          
+          EOF
           fi
 
           if [[ -n "$LICENSE_KEY" ]]; then
             cat <<EOF >> "$NEW_ENTRY_FILE"
-**ESET BUSINESS SECURITY LICENSE**
-
-\`\`\`yml
-Expiry: ${LICENSE_OUT_DATE:-N/A}
-License Key: $LICENSE_KEY
-\`\`\`
-
-<br />
-
-EOF
+          **ESET BUSINESS SECURITY LICENSE**
+          
+          \`\`\`yml
+          Expiry: ${LICENSE_OUT_DATE:-N/A}
+          License Key: $LICENSE_KEY
+          \`\`\`
+          
+          <br />
+          
+          EOF
           fi
 
           if [[ -n "$ACCOUNT_EMAIL" ]]; then
             cat <<EOF >> "$NEW_ENTRY_FILE"
-**ESET ACCOUNT CREDENTIALS**
-
-\`\`\`yml
-Email: $ACCOUNT_EMAIL
-Password: ${ACCOUNT_PASSWORD:-N/A}
-\`\`\`
-
-<br />
-
-EOF
+          **ESET ACCOUNT CREDENTIALS**
+          
+          \`\`\`yml
+          Email: $ACCOUNT_EMAIL
+          Password: ${ACCOUNT_PASSWORD:-N/A}
+          \`\`\`
+          
+          <br />
+          
+          EOF
           fi
 
           cat <<EOF >> "$NEW_ENTRY_FILE"
-Everything you need to know about ESET [^1]  
-Need more VPN access codes? [^2]
-
-<br />
-
-[^1]: [View Full Post](https://telegram.me/s/F_NiREvil/2113)
-
-[^2]: [Explore The Darkness Hub](https://telegram.me/s/Eset_key_trial)
-
----
-
-<br><br />
-
-EOF
+          Everything you need to know about ESET [^1]  
+          Need more VPN access codes? [^2]
+          
+          <br />
+          
+          [^1]: [View Full Post](https://telegram.me/s/F_NiREvil/2113)
+          
+          [^2]: [Explore The Darkness Hub](https://telegram.me/s/Eset_key_trial)
+          
+          ---
+          
+          <br><br />
+          
+          EOF
           echo "Markdown formatting complete for the new entry in $NEW_ENTRY_FILE."
 
           # --- منطق ترکیب فایل‌ها (بدون تغییر) ---
