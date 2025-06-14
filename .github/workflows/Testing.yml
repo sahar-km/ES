@@ -55,7 +55,7 @@ jobs:
       OUTPUT_FILENAME: 'ESET-CODES.md'
       TEMP_OUTPUT_FILE: 'key_gen_output.log'
       LOG_DIR: '/logs'
-      LAST_RUN_DATE_FILE: 'logs/.last_run_date'
+      LAST_RUN_DATE_FILE: '.last_run_date'
 
     steps:
       - name: Checkout Repository Code
