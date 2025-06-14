@@ -133,7 +133,8 @@ jobs:
           ACCOUNT_PASSWORD=$(grep -oP '^Account Password: \K.*' "$TEMP_OUTPUT" || true)
 
           NEW_ENTRY_FILE="new_entry.md.tmp"
-          IRAN_DATE=$(TZ='Asia/Tehran' date '+%A, %d %B %Y, %H:%M')
+          export TZ='Asia/Tehran'
+          IRAN_DATE=$(date '+%A, %d %B %Y, %H:%M')
           CURRENT_DATETIME_IRAN="${IRAN_DATE} IRN"
           
           {
