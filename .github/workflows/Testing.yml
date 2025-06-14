@@ -230,3 +230,13 @@ jobs:
           fi
 
           echo "File update complete for ${OUTPUT_FILE}."
+
+          - name: Commit and Push Generated Keys
+            uses: stefanzweifel/git-auto-commit-action@v5
+            with:
+              commit_message: "feat: Update ESET generated keys/accounts (${{ github.event_name }})"
+              file_pattern: "${{ env.OUTPUT_FILENAME }} ${{ env.LAST_RUN_DATE_FILE }}"
+              commit_user_name: "ESET Security Bot"
+              commit_user_email: "pr@eset.com"
+              commit_options: '--signoff'
+              # push_options: '--force'
