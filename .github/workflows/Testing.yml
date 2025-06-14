@@ -1,3 +1,71 @@
+name: Testing
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      account:
+        description: 'Number of Accounts to be generated (default = 0)'
+        required: false
+        default: '0'
+      key:
+        description: 'Number of Keys to be generated (default = 1)'
+        required: false
+        default: '1'
+      mail:
+        description: 'Choose the mail provider to generate license'
+        required: true
+        type: choice
+        options:
+        - fakemail
+        - guerrillamail
+        - 1secmail
+        - developermail
+        - mailticking
+        - inboxes
+        - incognitomail
+        default: fakemail
+      key_type:
+        description: 'Operation'
+        required: true
+        type: choice
+        options:
+        - --key
+        - --small-business-key
+        - --vpn-codes
+        default: --vpn-codes
+      branch:
+        description: "Key-Gen Repository branch (default = main)"
+        required: false
+        default: 'main'
+  schedule:
+    - cron: '0 */4 * * *'
+
+jobs:
+  generate-and-commit:
+    runs-on: ubuntu-latest
+    env:
+      DEFAULT_ACCOUNT: '0'
+      DEFAULT_KEY: '1'
+      DEFAULT_MAIL: 'fakemail'
+      DEFAULT_KEY_TYPE: '--vpn-codes'
+      DEFAULT_BRANCH: 'main'
+      OUTPUT_FILENAME: 'ESET-CODES.md'
+      TEMP_OUTPUT_FILE: 'key_gen_output.log'
+      LOG_DIR: '/'
+      LAST_RUN_DATE_FILE: '.last_run_date'
+
+    steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: Create Log Directory
+        run: |
+          mkdir -p "${{ env.LOG_DIR }}"
+          echo "Created directory: ${{ env.LOG_DIR }}"
+      
       - name: Generate Keys
         # اضافه کردن این خط برای اطمینان از اجرای اسکریپت با Bash توصیه می‌شود
         shell: bash 
