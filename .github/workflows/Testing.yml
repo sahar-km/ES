@@ -19,11 +19,11 @@ on:
         required: true
         type: choice
         options:
-        - fakemail
-        - guerrillamail
         - 1secmail
+        - guerrillamail
         - developermail
         - mailticking
+        - fakemail
         - inboxes
         - incognitomail
         default: fakemail
@@ -54,8 +54,8 @@ jobs:
       DEFAULT_BRANCH: 'main'
       OUTPUT_FILENAME: 'ESET-CODES.md'
       TEMP_OUTPUT_FILE: 'key_gen_output.log'
-      LOG_DIR: '/'
-      LAST_RUN_DATE_FILE: '.last_run_date'
+      LOG_DIR: '/logs'
+      LAST_RUN_DATE_FILE: '/logs/.last_run_date'
 
     steps:
       - name: Checkout Repository Code
@@ -63,14 +63,13 @@ jobs:
 
       - name: Create Log Directory
         run: |
+          # Create the log directory if it doesn't exist
           mkdir -p "${{ env.LOG_DIR }}"
           echo "Created directory: ${{ env.LOG_DIR }}"
-      
+
       - name: Generate Keys
-        # اضافه کردن این خط برای اطمینان از اجرای اسکریپت با Bash توصیه می‌شود
-        shell: bash 
         run: |
-          # --- تعیین متغیرها ---
+          # Determine parameters
           ACCOUNT=${{ github.event.inputs.account || env.DEFAULT_ACCOUNT }}
           KEY=${{ github.event.inputs.key || env.DEFAULT_KEY }}
           MAIL=${{ github.event.inputs.mail || env.DEFAULT_MAIL }}
@@ -80,7 +79,6 @@ jobs:
           TEMP_OUTPUT="${{ env.TEMP_OUTPUT_FILE }}"
           LAST_RUN_FILE="${{ env.LAST_RUN_DATE_FILE }}" 
 
-          echo "*********************************"
           echo "⚙️ Configuration"
           echo "Triggered by: ${{ github.event_name }}"
           echo "Account Count: $ACCOUNT"
@@ -88,9 +86,13 @@ jobs:
           echo "Mail Provider: $MAIL"
           echo "Key Type: $KEY_TYPE"
           echo "Key-Gen Branch: $BRANCH"
-          echo "*********************************"
+          echo "Output File: $OUTPUT_FILE"
+          echo "Temp Output File: $TEMP_OUTPUT"
+          echo "Last Run Date File: $LAST_RUN_FILE"
+          echo "Log Directory: ${{ env.LOG_DIR }}"
+          echo "---------------------"
 
-          # --- آماده‌سازی و اجرای اسکریپت اصلی ---
+          # Delete old temp file if exists
           rm -f "$TEMP_OUTPUT"
 
           echo "Cloning Key-Gen repository..."
@@ -105,121 +107,153 @@ jobs:
           pip install -r requirements.txt > /dev/null
           echo "Python environment setup complete."
 
-          echo "Generating accounts/keys..."
-          # *** تغییر کلیدی شماره ۱: ساده‌سازی ذخیره خروجی ***
+          echo "Generating accounts/keys and capturing output..."
           if [[ ${ACCOUNT} -ne 0 ]]; then
             echo "Generating $ACCOUNT accounts..."
-            # استفاده از > برای نوشتن (overwrite) در فایل
-            python3 main.py --auto-detect-browser --account --email-api ${MAIL} --skip-update-check --no-logo --disable-progress-bar --disable-logging --repeat ${ACCOUNT} > "../$TEMP_OUTPUT"
+            python3 main.py --auto-detect-browser --account --email-api ${MAIL} --skip-update-check --no-logo --disable-progress-bar --disable-logging --repeat ${ACCOUNT} | tee "../$TEMP_OUTPUT"
           fi
           if [[ ${KEY} -ne 0 ]]; then
             echo "Generating $KEY keys (type: $KEY_TYPE)..."
-            # استفاده از >> برای اضافه کردن (append) به فایل
-            python3 main.py --auto-detect-browser ${KEY_TYPE} --email-api ${MAIL} --skip-update-check --no-logo --disable-progress-bar --disable-logging --repeat ${KEY} >> "../$TEMP_OUTPUT"
+            APPEND_FLAG=""
+            # Check if temp file already exists from account generation
+            if [[ -f "../$TEMP_OUTPUT" ]]; then
+              APPEND_FLAG="-a"
+            fi
+            
+            python3 main.py --auto-detect-browser ${KEY_TYPE} --email-api ${MAIL} --skip-update-check --no-logo --disable-progress-bar --disable-logging --repeat ${KEY} | tee $APPEND_FLAG "../$TEMP_OUTPUT"
           fi
           echo "Generation commands executed. Output captured in ../$TEMP_OUTPUT"
-          
+
           cd ..
 
-          # --- استخراج اطلاعات و ساخت فایل Markdown ---
-          echo "✨ Extracting data and formatting Markdown..."
-          VPN_CODES_LIST=$(grep -oP '^VPN Codes: \K.*' "$TEMP_OUTPUT" || true)
-          LICENSE_NAME=$(grep -oP '^License Name: \K.*' "$TEMP_OUTPUT" || true)
-          LICENSE_KEY=$(grep -oP '^License Key: \K.*' "$TEMP_OUTPUT" || true)
-          LICENSE_OUT_DATE=$(grep -oP '^License Out Date: \K.*' "$TEMP_OUTPUT" || true)
-          ACCOUNT_EMAIL=$(grep -oP '^Account Email: \K.*' "$TEMP_OUTPUT" || true)
-          ACCOUNT_PASSWORD=$(grep -oP '^Account Password: \K.*' "$TEMP_OUTPUT" || true)
+          # --- Extract values and format Markdown for NEW entry ---
+          echo "✨ Extracting data and formatting Markdown for the new entry..."
+          VPN_CODES_LIST=$(grep '^VPN Codes:' "$TEMP_OUTPUT" | sed 's/^VPN Codes: //' || true)
+          LICENSE_NAME=$(grep '^License Name:' "$TEMP_OUTPUT" | sed 's/^License Name: //' || true)
+          LICENSE_KEY=$(grep '^License Key:' "$TEMP_OUTPUT" | sed 's/^License Key: //' || true)
+          LICENSE_OUT_DATE=$(grep '^License Out Date:' "$TEMP_OUTPUT" | sed 's/^License Out Date: //' || true)
+          ACCOUNT_EMAIL=$(grep '^Account Email:' "$TEMP_OUTPUT" | sed 's/^Account Email: //' || true)
+          ACCOUNT_PASSWORD=$(grep '^Account Password:' "$TEMP_OUTPUT" | sed 's/^Account Password: //' || true)
 
           NEW_ENTRY_FILE="new_entry.md.tmp"
-          export TZ='Asia/Tehran'
-          IRAN_DATE=$(date '+%A, %d %B %Y, %H:%M')
-          CURRENT_DATETIME_IRAN="${IRAN_DATE} IRN"
-          
-          # *** تغییر کلیدی شماره ۲: استفاده از cat <<EOF برای ساختار تمیزتر ***
-          cat <<EOF > "$NEW_ENTRY_FILE"
-          ## Generated On: ${CURRENT_DATETIME_IRAN}
-          
-          > [!WARNING]
-          > ∆ Triggered by: ${{ github.event_name }}  
-          > ∆ Time-Sensitive Codes:  
-          > - Expire in 24 hours
-          > - Single-device binding
-          > - No reactivation permitted
+          CURRENT_DATETIME_IRAN=$(TZ='Asia/Tehran' date '+%A, %d %B %Y, %H:%M IRN.')
 
-          <br />
-          
-          EOF
-          
+          # Start building the new entry
+          {
+            echo "## Generated On: ${CURRENT_DATETIME_IRAN}"
+            echo ""
+            echo "> [!CAUTION]"
+            echo "> Triggered by: ${{ github.event_name }}"
+            echo ""
+            echo "<br></br>"
+            echo ""
+          } > "$NEW_ENTRY_FILE"
+
+          # 1. Add VPN Codes Section (if VPN codes exist)
           if [[ -n "$VPN_CODES_LIST" ]]; then
-          cat <<EOF >> "$NEW_ENTRY_FILE"
-          **ESET VPN ACCESS CODES**
-          
-          \`\`\`ruby
-          $(echo "$VPN_CODES_LIST" | sed 's/, /\n/g')
-          \`\`\`
-          
-          <br />
-          
-          EOF
+            {
+              echo "### ESET VPN ACCESS CODES"
+              echo ""
+              echo "> [!NOTE]"
+              echo "> The access codes for ESET VPN will expire in 24 hours."
+              echo "> Each code is valid for login on only one device."
+              echo ""
+              echo '```ruby'
+              echo "$VPN_CODES_LIST" | sed 's/, /\n/g'
+              echo '```'
+              echo ""
+              echo "</br>"
+              echo ""
+            } >> "$NEW_ENTRY_FILE"
           fi
 
+          # 2. Add ESET Security License Section (if License Key exists)
           if [[ -n "$LICENSE_KEY" ]]; then
-            cat <<EOF >> "$NEW_ENTRY_FILE"
-          **ESET BUSINESS SECURITY LICENSE**
-          
-          \`\`\`yml
-          Expiry: ${LICENSE_OUT_DATE:-N/A}
-          License Key: $LICENSE_KEY
-          \`\`\`
-          
-          <br />
-          
-          EOF
+            {
+              echo "### ESET SECURITY LICENSE"
+              echo ""
+              echo "**Name:** ${LICENSE_NAME:-N/A}"
+              echo "**Expiry:** ${LICENSE_OUT_DATE:-N/A}"
+              echo "**License Key:**"
+              echo ""
+              echo '```POV-Ray SDL'
+              echo "$LICENSE_KEY"
+              echo '```'
+              echo ""
+              echo "</br>"
+              echo ""
+            } >> "$NEW_ENTRY_FILE"
           fi
 
+          # 3. Add ESET Account Section (if Account Email exists)
           if [[ -n "$ACCOUNT_EMAIL" ]]; then
-            cat <<EOF >> "$NEW_ENTRY_FILE"
-          **ESET ACCOUNT CREDENTIALS**
-          
-          \`\`\`yml
-          Email: $ACCOUNT_EMAIL
-          Password: ${ACCOUNT_PASSWORD:-N/A}
-          \`\`\`
-          
-          <br />
-          
-          EOF
+            {
+              echo "### ESET ACCOUNT"
+              echo ""
+              echo "**Email:**"
+              echo ""
+              echo '```CSS'
+              echo "$ACCOUNT_EMAIL"
+              echo '```'
+              echo ""
+              echo "**Password:**"
+              echo ""
+              echo '```POV-Ray SDL'
+              if [[ -n "$ACCOUNT_PASSWORD" ]]; then
+                echo "$ACCOUNT_PASSWORD"
+              else
+                echo "N/A"
+              fi
+              echo '```'
+              echo ""
+              echo "</br>"
+              echo ""
+            } >> "$NEW_ENTRY_FILE"
           fi
 
-          cat <<EOF >> "$NEW_ENTRY_FILE"
-          Everything you need to know about ESET [^1]  
-          Need more VPN access codes? [^2]
-          
-          <br />
-          
-          [^1]: [View Full Post](https://telegram.me/s/F_NiREvil/2113)
-          
-          [^2]: [Explore The Darkness Hub](https://telegram.me/s/Eset_key_trial)
-          
-          ---
-          
-          <br><br />
-          
-          EOF
+          # 4. Add Static Footer Link Section
+          {
+            echo "#### 📚 Everything you need to know about ESET"
+            echo ""
+            echo "[Read Here](https://t.me/F_NiREvil/2113)"
+            echo ""
+            echo "#### 🪄 If you need more VPN codes, Check out"
+            echo ""
+            echo "[The Darkness TG channel](https://t.me/Eset_key_trial)"
+            echo ""
+            echo "---"
+            echo ""
+            echo "<br></br>"
+            echo ""
+          } >> "$NEW_ENTRY_FILE"
+
           echo "Markdown formatting complete for the new entry in $NEW_ENTRY_FILE."
 
-          # --- منطق ترکیب فایل‌ها (بدون تغییر) ---
           echo "Determining whether to prepend or overwrite based on date..."
           CURRENT_DATE_UTC=$(date -u +'%Y-%m-%d')
           LAST_RUN_DATE="never"
 
           if [[ -f "$LAST_RUN_FILE" ]]; then
               LAST_RUN_DATE=$(cat "$LAST_RUN_FILE")
+              echo "Last reset/write date found in $LAST_RUN_FILE: $LAST_RUN_DATE"
+          else
+              echo "$LAST_RUN_FILE not found. Assuming first run or manual deletion."
           fi
 
+          echo "Current UTC date: $CURRENT_DATE_UTC"
+
+          SHOULD_RESET=false
           if [[ "$CURRENT_DATE_UTC" != "$LAST_RUN_DATE" ]] || [[ ! -f "$OUTPUT_FILE" ]]; then
+              echo "Reset condition met: New day ($CURRENT_DATE_UTC != $LAST_RUN_DATE) or output file missing."
+              SHOULD_RESET=true
+          else
+              echo "Reset condition not met: Still the same day ($CURRENT_DATE_UTC == $LAST_RUN_DATE) and output file exists."
+          fi
+
+          if [[ "$SHOULD_RESET" == "true" ]]; then
               echo "Overwriting ${OUTPUT_FILE} with the new entry."
               mv "$NEW_ENTRY_FILE" "$OUTPUT_FILE"
+              echo "Updating $LAST_RUN_FILE with current date: $CURRENT_DATE_UTC"
               echo "$CURRENT_DATE_UTC" > "$LAST_RUN_FILE"
           else
               echo "Prepending the new entry to ${OUTPUT_FILE}."
@@ -227,16 +261,22 @@ jobs:
               cat "$NEW_ENTRY_FILE" "$OUTPUT_FILE" > "$TEMP_COMBINED_FILE"
               mv "$TEMP_COMBINED_FILE" "$OUTPUT_FILE"
               rm "$NEW_ENTRY_FILE"
+              echo "$LAST_RUN_FILE remains unchanged ($LAST_RUN_DATE)."
           fi
 
-          echo "File update complete for ${OUTPUT_FILE}."
+          # rm -f "$TEMP_OUTPUT" # Uncomment if you want to remove the log file
 
-          - name: Commit and Push Generated Keys
-            uses: stefanzweifel/git-auto-commit-action@v5
-            with:
-              commit_message: "feat: Update ESET generated keys/accounts (${{ github.event_name }})"
-              file_pattern: "${{ env.OUTPUT_FILENAME }} ${{ env.LAST_RUN_DATE_FILE }}"
-              commit_user_name: "ESET Security Bot"
-              commit_user_email: "pr@eset.com"
-              commit_options: '--signoff'
-              # push_options: '--force'
+          echo "File update complete for ${OUTPUT_FILE}."
+          echo "Final content of ${OUTPUT_FILE} (first 100 lines):"
+          head -n 100 "${OUTPUT_FILE}"
+
+
+      - name: Commit and Push Generated Keys
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "feat: Update ESET generated keys/accounts (${{ github.event_name }})"
+          file_pattern: "${{ env.OUTPUT_FILENAME }} ${{ env.LAST_RUN_DATE_FILE }}"
+          commit_user_name: "ESET Security Bot"
+          commit_user_email: "pr@eset.com"
+          commit_options: '--signoff'
+          # push_options: '--force'
