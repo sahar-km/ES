@@ -1,4 +1,4 @@
-## Generated On: Saturday, 14 June 2025, 23:53 IRN.
+## Generated On: Sunday, 15 June 2025, 05:33 IRN.
 
 > [!CAUTION]
 > Triggered by: schedule
@@ -12,16 +12,16 @@
 > Each code is valid for login on only one device.
 
 ```ruby
-KAKK15CEAX
-L6VI65LHED
-G9RV8G54B1
-M67ZZPZQXR
-VFFWMXTUHX
-AKANUGSP1Y
-DLVEA8FF8G
-T3M6SMHCGQ
-NN2ER8KKUC
-WKGRZWU1VQ
+S05ARZ0P8E
+73PBGSQ5W4
+LL85R9HCKW
+LW7QLWHZ08
+J9ZY7TFKTX
+52Z0EXSZOJ
+SUM4JY5DYR
+2RDNQHCMYX
+6ZWN5M41I0
+JSG62W1UBV
 ```
 
 </br>
@@ -29,11 +29,11 @@ WKGRZWU1VQ
 ### ESET SECURITY LICENSE
 
 **Name:** ESET Small Business Security
-**Expiry:** 14.07.2025
+**Expiry:** 15.07.2025
 **License Key:**
 
 ```POV-Ray SDL
-4TED-X8GR-XX42-GV2A-RKMT
+VM2M-XRJC-7NC9-DS2A-72U6
 ```
 
 </br>
@@ -43,81 +43,13 @@ WKGRZWU1VQ
 **Email:**
 
 ```CSS
-donzell.anik@fsitip.com
+carmen.matthan@fsitip.com
 ```
 
 **Password:**
 
 ```POV-Ray SDL
-w?lY3Q{6xN\oH61A%V
-```
-
-</br>
-
-#### 📚 Everything you need to know about ESET
-
-[Read Here](https://t.me/F_NiREvil/2113)
-
-#### 🪄 If you need more VPN codes, Check out
-
-[The Darkness TG channel](https://t.me/Eset_key_trial)
-
----
-
-<br></br>
-
-## Generated On: Saturday, 14 June 2025, 20:16 IRN.
-
-> [!CAUTION]
-> Triggered by: workflow_dispatch
-
-<br></br>
-
-### ESET VPN ACCESS CODES
-
-> [!NOTE]
-> The access codes for ESET VPN will expire in 24 hours.
-> Each code is valid for login on only one device.
-
-```ruby
-02Y9Z2762Z
-PNYPAEGVYL
-0JDTGVHN0Q
-40UFE6LH3S
-US8BAU07I8
-17D10SUW9W
-ZL7EX82GUM
-QOE4P65J1Q
-3R7JTNJ8VI
-9KDBVGFCFE
-```
-
-</br>
-
-### ESET SECURITY LICENSE
-
-**Name:** ESET Small Business Security
-**Expiry:** 14.07.2025
-**License Key:**
-
-```POV-Ray SDL
-X8MG-XJ6X-CHSF-H3E2-8DCJ
-```
-
-</br>
-
-### ESET ACCOUNT
-
-**Email:**
-
-```CSS
-kain.aaliyah@fsitip.com
-```
-
-**Password:**
-
-```POV-Ray SDL
-.k~bgHDMX=Mj07H
+}X5Zn9"f'v['8JtiBb'w
 ```
 
 </br>
