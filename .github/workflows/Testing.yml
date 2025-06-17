@@ -19,11 +19,11 @@ on:
         required: true
         type: choice
         options:
-        - 1secmail
-        - guerrillamail
+        - fakemail
+        - guerrillamail 
         - developermail
         - mailticking
-        - fakemail
+        - 1secmail
         - inboxes
         - incognitomail
         default: fakemail
@@ -55,7 +55,7 @@ jobs:
       OUTPUT_FILENAME: 'ESET-CODES.md'
       TEMP_OUTPUT_FILE: 'key_gen_output.log'
       LOG_DIR: 'logs'
-      LAST_RUN_DATE_FILE: 'logs/.last_run_date'
+      LAST_RUN_DATE_FILE: 'edge/assets/logs/.last_run_date'
 
     steps:
       - name: Checkout Repository Code
@@ -63,13 +63,11 @@ jobs:
 
       - name: Create Log Directory
         run: |
-          # Create the log directory if it doesn't exist
           mkdir -p "${{ env.LOG_DIR }}"
           echo "Created directory: ${{ env.LOG_DIR }}"
 
       - name: Generate Keys
         run: |
-          # Determine parameters
           ACCOUNT=${{ github.event.inputs.account || env.DEFAULT_ACCOUNT }}
           KEY=${{ github.event.inputs.key || env.DEFAULT_KEY }}
           MAIL=${{ github.event.inputs.mail || env.DEFAULT_MAIL }}
@@ -92,7 +90,6 @@ jobs:
           echo "Log Directory: ${{ env.LOG_DIR }}"
           echo "---------------------"
 
-          # Delete old temp file if exists
           rm -f "$TEMP_OUTPUT"
 
           echo "Cloning Key-Gen repository..."
@@ -137,35 +134,35 @@ jobs:
           ACCOUNT_PASSWORD=$(grep '^Account Password:' "$TEMP_OUTPUT" | sed 's/^Account Password: //' || true)
 
           NEW_ENTRY_FILE="new_entry.md.tmp"
-          CURRENT_DATETIME_IRAN=$(TZ='Asia/Tehran' date '+%A, %d %B %Y, %H:%M IRN.')
+          CURRENT_DATETIME_IRAN=$(TZ='Asia/Tehran' date '+%A, %d %B %Y, %H:%M IRN')
 
           # Start building the new entry
           {
             echo "## Generated On: ${CURRENT_DATETIME_IRAN}"
-            echo "" # Blank line after title
+            echo "" 
             echo "> [!WARNING]"
-            echo ">" # Blank line for formatting inside blockquote
+            echo ">" 
             echo "> - Triggered by: **${{ github.event_name }}**"
             echo "> - Time-Sensitive Codes"
             echo "> - Expire in 24 hours"
             echo "> - Single-device binding"
-            echo "> - No reactivation permitted <br><br/>" # Ends warning block
-            echo "" # Blank line
-            echo "<br/>" # User's spec had this before VPN codes
-            echo "" # Blank line
+            echo "> - No reactivation permitted <br><br/>" 
+            echo "" 
+            echo "<br/>" 
+            echo "" 
           } > "$NEW_ENTRY_FILE"
 
           # 1. Add VPN Codes Section (if VPN codes exist)
           if [[ -n "$VPN_CODES_LIST" ]]; then
             {
               echo "**ESET VPN ACCESS CODES**"
-              echo "" # Blank line
+              echo "" 
               echo '```ruby'
-              echo "$VPN_CODES_LIST" | sed 's/, /\n/g' # Ensure literal newlines for sed if needed, or just process as is if input is multi-line
+              echo "$VPN_CODES_LIST" | sed 's/, /\n/g' 
               echo '```'
-              echo "" # Blank line
-              echo "<br/>" # User's spec
-              echo "" # Blank line
+              echo "" 
+              echo "<br/>" 
+              echo "" 
             } >> "$NEW_ENTRY_FILE"
           fi
 
@@ -173,14 +170,14 @@ jobs:
           if [[ -n "$LICENSE_KEY" ]]; then
             {
               echo "**ESET BUSINESS SECURITY LICENSE**"
-              echo "" # Blank line
+              echo "" 
               echo '```yml'
               echo "Expiry: ${LICENSE_OUT_DATE:-N/A}"
               echo "License Key: ${LICENSE_KEY}"
               echo '```'
-              echo "" # Blank line
-              echo "<br/>" # User's spec
-              echo "" # Blank line
+              echo "" 
+              echo "<br/>" 
+              echo "" 
             } >> "$NEW_ENTRY_FILE"
           fi
 
@@ -188,7 +185,7 @@ jobs:
           if [[ -n "$ACCOUNT_EMAIL" ]]; then
             {
               echo "**ESET ACCOUNT Credentials**"
-              echo "" # Blank line
+              echo "" 
               echo '```yml'
               echo "Email: ${ACCOUNT_EMAIL}"
               if [[ -n "$ACCOUNT_PASSWORD" ]]; then
@@ -197,9 +194,9 @@ jobs:
                 echo "Password: N/A"
               fi
               echo '```'
-              echo "" # Blank line
-              echo "<br/>" # User's spec
-              echo "" # Blank line
+              echo "" 
+              echo "<br/>" 
+              echo "" 
             } >> "$NEW_ENTRY_FILE"
           fi
 
@@ -207,7 +204,8 @@ jobs:
           {
             echo "Everything you need to know about ESET. [^1]"
             echo "Need more VPN access codes? [^2]"
-            echo "<br/><br/>" # This was in user spec before the separator #
+            echo "" 
+            echo <br/>" 
           } >> "$NEW_ENTRY_FILE"
           # --- End of NEW_ENTRY_FILE content generation ---
 
@@ -279,7 +277,6 @@ jobs:
                   echo "#"
                   echo ""
                   cat "$NEW_ENTRY_FILE"
-                  # NEW_ENTRY_FILE ends with <br/><br/>
                   # Add separator if there's old content to follow
                   if [[ -s "$OLD_CONTENT_BODY_TMP" ]]; then # -s checks if file is not empty
                       echo "#" # Separator line
@@ -310,7 +307,7 @@ jobs:
       - name: Commit and Push Generated Keys
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "feat: Update ESET generated keys/accounts (${{ github.event_name }})"
+          commit_message: "feat: Update ESET generated Key/License/Accounts (${{ github.event_name }})"
           file_pattern: "${{ env.OUTPUT_FILENAME }} ${{ env.LAST_RUN_DATE_FILE }}"
           commit_user_name: "ESET Security Bot"
           commit_user_email: "pr@eset.com"
