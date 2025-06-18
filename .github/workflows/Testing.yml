@@ -205,7 +205,7 @@ jobs:
             echo "Everything you need to know about ESET. [^1]"
             echo "Need more VPN access codes? [^2]"
             echo "" 
-            echo <br/>" 
+            echo "<br/>" 
           } >> "$NEW_ENTRY_FILE"
           # --- End of NEW_ENTRY_FILE content generation ---
 
