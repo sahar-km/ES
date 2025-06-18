@@ -206,6 +206,7 @@ jobs:
             echo "Need more VPN access codes? [^2]"
             echo "" 
             echo "<br/>" 
+            echo "" 
           } >> "$NEW_ENTRY_FILE"
           # --- End of NEW_ENTRY_FILE content generation ---
 
@@ -237,10 +238,10 @@ jobs:
           if [[ "$SHOULD_RESET" == "true" ]]; then
               echo "Overwriting ${OUTPUT_FILE} with the new entry and new structure."
               {
-                  echo "#"
                   echo ""
+                  echo "#"
                   cat "$NEW_ENTRY_FILE"
-                  # Note: NEW_ENTRY_FILE already ends with <br/><br/> as per plan step 1
+                  # Note: NEW_ENTRY_FILE already ends with <br/> as per plan step 1
                   echo -e "$FOOTNOTES"
               } > "$OUTPUT_FILE"
               echo "Updating $LAST_RUN_FILE with current date: $CURRENT_DATE_UTC"
@@ -274,13 +275,13 @@ jobs:
               fi
 
               {
-                  echo "#"
                   echo ""
+                  echo "#"
                   cat "$NEW_ENTRY_FILE"
                   # Add separator if there's old content to follow
                   if [[ -s "$OLD_CONTENT_BODY_TMP" ]]; then # -s checks if file is not empty
-                      echo "#" # Separator line
                       echo "" # Blank line after separator
+                      echo "#" # Separator line
                       cat "$OLD_CONTENT_BODY_TMP"
                   fi
                   echo -e "$FOOTNOTES"
